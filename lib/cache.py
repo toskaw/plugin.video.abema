@@ -162,12 +162,15 @@ class Cache:
             if type == 3 :
                 video_id = episode['id']
                 video_title = episode['episode']['title']
+                if 'thumbComponent' in episode:
+                    thumb = episode['thumbComponent']['urlPrefix'] + '/' + episode['thumbComponent']['filename'] + '?' + episode['thumbComponent']['query']
+                else:
+                    #https://image.p-c2-x.abema-tv.com/image/programs/89-66_s99_p6866/thumb001.png?background=000000&fit=fill&height=144&quality=75&version=1764405255&width=256
+                    thumb = f'https://image.p-c2-x.abema-tv.com/image/programs/{video_id}/thumb001.png'
                 episodes.append({ 'name': video_title,
                                   'video': video_id,
                                   'desc': episode['episode']['content'],
-                                  'thumb': episode['thumbComponent']['urlPrefix']
-                                  + '/' + episode['thumbComponent']['filename']
-                                  + '?' + episode['thumbComponent']['query']})
+                                  'thumb': thumb})
                 
         return episodes
 
