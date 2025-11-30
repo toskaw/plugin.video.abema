@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<addon id="plugin.video.abema" name="AbemaTV" version="1.0.0" provider-name="toskawa">
+  <requires>
+    <import addon="xbmc.python" version="3.0.1" />
+    <import addon="script.module.inputstreamhelper" version="0.6.0" />
+    <import addon="script.module.requests" version="2.27.1" />
+  </requires>
+
+  <extension point="xbmc.python.pluginsource" library="plugin.py">
+      <provides>video</provides>
+  </extension>
+
+  <extension point="xbmc.service" library="service.py" />
+
+  <extension point="xbmc.addon.metadata">
+        <license>Unlicense</license>
+        <platform>all</platform>
+        <source>https://github.com/toskaw/</source>
+        <assets>
+            <icon>icon.png</icon>
+        </assets>
+        <summary lang="en">AbemaTV Addon</summary>
+        <description lang="en">Abema.tv + yt-dlp = ♥</description>
+    </extension>
+</addon>
