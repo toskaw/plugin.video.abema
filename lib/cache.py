@@ -136,10 +136,13 @@ class Cache:
 
         for episode in json_episodes:
             season_id = episode['id']
-            season_title = episode['name']
+            if 'name' in episode:
+                season_title = episode['name']
+            else:
+                season_title = ""
             episodes.append({ 'name': season_title,
                               'season': season_id,
-                              'episodeGroups': episode['episodeGroups'],
+                              'episodeGroups': episode.get('episodeGroups'),
                               'thumb': episode['thumbComponent']['urlPrefix']
                               + '/' + episode['thumbComponent']['filename']
                               + '?' + episode['thumbComponent']['query']})
@@ -152,7 +155,11 @@ class Cache:
         episodes = []
 
         for episode in json_episodes:
-            if episode['video']['terms'][0]['onDemandType'] == 3 :
+            if 'video' in episode:
+                type = episode['video']['terms'][0]['onDemandType']
+            else:
+                type = episode['terms'][0]['onDemandType']
+            if type == 3 :
                 video_id = episode['id']
                 video_title = episode['episode']['title']
                 episodes.append({ 'name': video_title,

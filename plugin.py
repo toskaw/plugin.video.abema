@@ -55,9 +55,23 @@ def list_series(category, series, title):
     videos = Cache().get_series_episodes(series)
 
     for video in videos:
-            
-        for eg in video['episodeGroups']:
-            label = video['name'] + "-" +  eg['name']
+        if video['episodeGroups'] :    
+            for eg in video['episodeGroups']:
+                label = video['name'] + "-" +  eg['name']
+                list_item = xbmcgui.ListItem(label=label, offscreen=True)
+        
+                vid_info = list_item.getVideoInfoTag()
+                vid_info.setTitle(label)
+                vid_info.setGenres([category])
+                vid_info.setTvShowTitle(video['name'])
+                vid_info.setMediaType('video')
+                list_item.setArt({'thumb': video['thumb'], 'icon': video['thumb'], 'fanart': video['thumb']})
+                list_item.setProperty('IsPlayable', 'true')
+                url = get_url(action='list_episodes', season=video['season'], group=eg['id'], title=label)
+                is_folder = True
+                xbmcplugin.addDirectoryItem(_HANDLE, url, list_item, is_folder)
+        else:
+            label = video['name']
             list_item = xbmcgui.ListItem(label=label, offscreen=True)
         
             vid_info = list_item.getVideoInfoTag()
@@ -67,11 +81,7 @@ def list_series(category, series, title):
             vid_info.setMediaType('video')
             list_item.setArt({'thumb': video['thumb'], 'icon': video['thumb'], 'fanart': video['thumb']})
             list_item.setProperty('IsPlayable', 'true')
-
-            #url = get_url(action='play', video=video['video'])
-            #is_folder = False
-
-            url = get_url(action='list_episodes', season=video['season'], group=eg['id'], title=label)
+            url = get_url(action='list_episodes', season=video['season'], group="None", title=label)
             is_folder = True
             xbmcplugin.addDirectoryItem(_HANDLE, url, list_item, is_folder)
     
@@ -184,6 +194,8 @@ def router(paramstring):
             clear_thumbnails()
         elif action == 'cache':
             Cache().delete_cache()
+            func = "Container.Refresh"
+            xbmc.executebuiltin(func)
         else:
             raise ValueError('Invalid paramstring: {}!'.format(paramstring))
     else:

@@ -42,11 +42,22 @@ def fetch_episode_group(season, episode):
     data = []
     offset = 0
     finish = False
-    while not finish:
-        resp = Abema._call_api(f'v1/contentlist/episodeGroups/{episode}/contents', "", {'seasonId': season, 'limit': 20, 'includes': 'liveEvent.slot', 'offset': offset})
-        if resp['episodeGroupContents'] :
-            data.extend(resp['episodeGroupContents'])
-            offset += len(resp['episodeGroupContents'])
-        else:
-            finish = True
+    if episode != 'None':
+        while not finish:
+            resp = Abema._call_api(f'v1/contentlist/episodeGroups/{episode}/contents', "", {'seasonId': season, 'limit': 20, 'includes': 'liveEvent.slot', 'offset': offset})
+            if resp['episodeGroupContents'] :
+                data.extend(resp['episodeGroupContents'])
+                offset += len(resp['episodeGroupContents'])
+            else:
+                finish = True
+    else:
+        while not finish:
+            series = season.split('_')[0]
+            #https://api.p-c3-e.abema-tv.com/v1/video/series/89-66/programs?seasonId=89-66_s99&order=-seq&limit=20&offset=0
+            resp = Abema._call_api(f'v1/video/series/{series}/programs', "", {'seasonId': season, 'limit': 20, 'order': '-seq', 'offset': offset})
+            if resp['programs'] :
+                data.extend(resp['programs'])
+                offset += len(resp['programs'])
+            else:
+                finish = True
     return data
