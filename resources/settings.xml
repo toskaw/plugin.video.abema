@@ -1,6 +1,6 @@
 <settings>
     <category label="30040">
-        <setting label="30041" id="savefolder" type="folder" source="" option="writeable" />
+      <setting label="30041" id="savefolder" type="folder" source="" option="writeable" />
     </category>
     <category label="30050">
         <setting label="30051" id="thumbnails" type="action" option="close" action="RunPlugin(plugin://$ID/?action=thumbnails)"/>

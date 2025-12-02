@@ -71,7 +71,7 @@ def list_series(category, series, title):
                 list_item.setProperty('IsPlayable', 'true')
 
                 if context:
-                    context_menu_item = (context[0], 'RunPlugin({})'.format(get_url(action=context[1], series=title, season=video['season'], group=eg['id'], title=label)))
+                    context_menu_item = (context[0], 'RunPlugin({})'.format(get_url(action=context[1], series=title, season=video['season'], group=eg['id'], title=video['name'])))
                     list_item.addContextMenuItems([context_menu_item])
 
                 url = get_url(action='list_episodes', season=video['season'], group=eg['id'], title=label)
@@ -209,7 +209,7 @@ def save_season(series, season, group, title):
     series_id = season.split('_')[0]
     scr = ''
     if group != 'None':
-        scr = f'yt-dlp -f b https://abema.tv/video/title/{series_id}?s={season}&eg={group}'
+        scr = f'yt-dlp -f b https://abema.tv/video/title/{series_id}?s={season}'
     else:
         scr = f'yt-dlp -f b https://abema.tv/video/title/{series_id}'
 

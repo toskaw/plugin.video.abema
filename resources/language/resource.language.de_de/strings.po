@@ -61,6 +61,10 @@ msgid "Add to 'My list'"
 msgstr "Zu 'Meine Liste' hinzufügen"
 
 # settings
+msgctxt "#30041"
+msgid "Save folder"
+msgstr ""
+
 msgctxt "#30050"
 msgid "Cache"
 msgstr "Cache"
