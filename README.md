@@ -11,6 +11,6 @@ ABEMAの配信コンテンツをkodiで視聴するためのプラグインで�
 保存フォルダに書き込み権限が必要です。
 ホスト側で保存フォルダに以下のようなスクリプトを作っておいてcronで定期実行すれば便利だと思います
 
-#!/bin/sh
-find . -name dl.sh -execdir sh ./dl.sh \;
+	#!/bin/sh
+	find . -name dl.sh -execdir sh ./dl.sh \;
 
