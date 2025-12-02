@@ -53,7 +53,7 @@ msgstr ""
 
 # context menus
 msgctxt "#30020"
-msgid "Remove from 'My list'"
+msgid "Save download script"
 msgstr ""
 
 msgctxt "#30021"
@@ -61,6 +61,14 @@ msgid "Add to 'My list'"
 msgstr ""
 
 # settings
+msgctxt "#30040"
+msgid "General"
+msgstr ""
+
+msgctxt "#30041"
+msgid "Save folder"
+msgstr ""
+
 msgctxt "#30050"
 msgid "Cache"
 msgstr ""

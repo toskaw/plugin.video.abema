@@ -53,14 +53,23 @@ msgstr "その他"
 
 # context menus
 msgctxt "#30020"
-msgid "Remove from 'My list'"
-msgstr "マイリストから削除"
+msgid "Save download script"
+msgstr "ダウンロード用のスクリプトを保存する"
+
 
 msgctxt "#30021"
 msgid "Add to 'My list'"
 msgstr "マイリストに追加"
 
 # settings
+msgctxt "#30040"
+msgid "General"
+msgstr "設定"
+
+msgctxt "#30041"
+msgid "Save folder"
+msgstr "保存フォルダ"
+
 msgctxt "#30050"
 msgid "Cache"
 msgstr "キャッシュ"
