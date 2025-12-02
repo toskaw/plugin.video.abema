@@ -69,6 +69,10 @@ msgctxt "#30051"
 msgid "Clear thumbnail cache"
 msgstr ""
 
+msgctxt "#30052"
+msgid "Clear cache"
+msgstr ""
+
 msgctxt "#30071"
 msgid "Remove"
 msgstr ""

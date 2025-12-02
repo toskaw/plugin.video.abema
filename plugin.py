@@ -29,7 +29,7 @@ def list_videos(category):
         vid_info.setTvShowTitle(video['name'])
         vid_info.setMediaType('video')
         list_item.setProperty('IsPlayable', 'true')
-        list_item.setArt({'thumb': video['thumb'], 'icon': video['thumb'], 'fanart': video['fanart']})
+        list_item.setArt({'thumb': video['thumb'], 'icon': video['thumb'], 'fanart': video['fanart'], 'poster': video['fanart']})
 
         if context:
             context_menu_item = (context[0], 'RunPlugin({})'.format(get_url(action=context[1], series=video['series'], category=video['genre'], series_title=video['series_title'])))
@@ -106,7 +106,7 @@ def list_episodes(season, group, title):
         vid_info = list_item.getVideoInfoTag()
         vid_info.setTitle(label)
         vid_info.setTvShowTitle(label)
-        vid_info.setEpisodeGuide(video['desc'])
+        vid_info.setPlot(video['desc'])
         vid_info.setMediaType('video')
         list_item.setArt({'thumb': video['thumb'], 'icon': video['thumb'], 'fanart': video['thumb']})
         list_item.setProperty('IsPlayable', 'true')
