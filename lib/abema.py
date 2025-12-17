@@ -8,19 +8,27 @@ Abema = Ydl.get_info_extractor("AbemaTVTitle")
 
 def get_categories():
     categories = Abema._call_api('v1/video/genres', "", {'subscriptionType': 'basic', 'device': 'web', 'genreStructured': 'true'})
-    return categories['genres']
+    cats = []
+    for category in categories['genres']:
+        episodes = fetch_episodes(category['id'], False)
+        if len(episodes) != 0 :
+            cats.append(category)
+    return cats
 
-def fetch_episodes(category):
+def fetch_episodes(category, all=True):
     data = []
     finish = False
     next = ''
+
     while not finish:
         resp = Abema._call_api(f'v1/video/featureGenres/{category}/cards', "", {'limit': 20, 'onlyFree':'true', 'next': next})
         if resp['cards'] :    
             data.extend(resp['cards'])
-        if resp['paging']:
-            next = resp['paging']['next']
+            if resp['paging']:
+                next = resp['paging']['next']
         else:
+            finish = True
+        if not all:
             finish = True
     return data
 
