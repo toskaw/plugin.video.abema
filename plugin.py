@@ -5,6 +5,8 @@ import xbmcplugin
 import xbmcvfs
 import xbmcaddon
 
+import re
+
 from lib import abema
 from lib import Cache
 
@@ -189,7 +191,9 @@ def play_video(video):
     xbmcplugin.setResolvedUrl(_HANDLE, True, listitem=list_item)
 
 def save_series(series, title):
+    title = re.sub(r'[\\/:*?"<>|]+','', title)
     path = xbmcaddon.Addon().getSetting('savefolder') + title
+    
     scr = f'yt-dlp -f b https://abema.tv/video/title/{series}'
     try:
         if not xbmcvfs.exists(path):
@@ -205,6 +209,9 @@ def save_series(series, title):
     return
 
 def save_season(series, season, group, title):
+    title = re.sub(r'[\\/:*?"<>|]+','', title)
+    series = re.sub(r'[\\/:*?"<>|]+','', series)
+    
     path = xbmcaddon.Addon().getSetting('savefolder') + series
     series_id = season.split('_')[0]
     scr = ''
