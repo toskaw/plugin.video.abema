@@ -73,7 +73,7 @@ def list_series(category, series, title):
                 list_item.setProperty('IsPlayable', 'true')
 
                 if context:
-                    context_menu_item = (context[0], 'RunPlugin({})'.format(get_url(action=context[1], series=title, season=video['season'], group=eg['id'], title=video['name'])))
+                    context_menu_item = (context[0], 'RunPlugin({})'.format(get_url(action=context[1], series=title, season=video['season'], group=eg['id'], title=video.get('name',""))))
                     list_item.addContextMenuItems([context_menu_item])
 
                 url = get_url(action='list_episodes', season=video['season'], group=eg['id'], title=label)
@@ -255,7 +255,7 @@ def router(paramstring):
         elif action == 'save_series':
             save_series(params['series'], params['series_title'])
         elif action == 'save_season':
-            save_season(params['series'], params['season'], params['group'], params['title'])
+            save_season(params['series'], params['season'], params['group'], params.get('title',"シーズン1"))
         elif action == 'thumbnails':
             clear_thumbnails()
         elif action == 'cache':
