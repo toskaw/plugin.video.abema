@@ -9,6 +9,7 @@ import re
 
 from lib import abema
 from lib import Cache
+from lib import Search
 
 from lib import log, show_info, check_if_kodi_supports_manifest, extract_info, extract_manifest_url_from_info, get_url, refresh, get_adaptive_type_from_url, localize, clear_thumbnails
 
@@ -17,10 +18,10 @@ _HANDLE = int(sys.argv[1])
 def list_videos(category):
     xbmcplugin.setPluginCategory(_HANDLE, category)
     xbmcplugin.setContent(_HANDLE, 'movies')
-
+    
     videos = []
     context = (localize(30020), 'save_series')
-    
+
     videos = Cache().get_episodes(category)
 
     for video in videos:
@@ -157,6 +158,12 @@ def list_categories():
         is_folder = True
         xbmcplugin.addDirectoryItem(_HANDLE, url, list_item, is_folder)
 
+    #search
+    list_item = xbmcgui.ListItem(label='Search', offscreen=True)
+    url = get_url(action='search')
+    is_folder = True
+    xbmcplugin.addDirectoryItem(_HANDLE, url, list_item, is_folder)
+
     xbmcplugin.addSortMethod(_HANDLE, xbmcplugin.SORT_METHOD_NONE)
     xbmcplugin.endOfDirectory(_HANDLE)
 
@@ -258,6 +265,8 @@ def router(paramstring):
             save_season(params['series'], params['season'], params['group'], params.get('title',"シーズン1"))
         elif action == 'thumbnails':
             clear_thumbnails()
+        elif action == 'search':
+            Search().list(_HANDLE)
         elif action == 'cache':
             Cache().delete_cache()
             func = "Container.Refresh"

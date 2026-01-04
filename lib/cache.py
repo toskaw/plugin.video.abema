@@ -44,13 +44,15 @@ class Cache:
             conn.execute(f'DELETE FROM categories WHERE expires <= ?', (round(time()),),)
             conn.execute(f'DELETE FROM series WHERE expires <= ?', (round(time()),),)
             conn.execute(f'DELETE FROM episodes WHERE expires <= ?', (round(time()),),)
+            conn.execute(f'DELETE FROM history WHERE id NOT IN (SELECT id FROM history ORDER BY id DESC LIMIT 10)')
 
     def delete_cache(self):
         with sql.connect(database()) as conn:
             conn.execute(f'DELETE FROM categories')
             conn.execute(f'DELETE FROM series')
             conn.execute(f'DELETE FROM episodes')
-        
+            conn.execute(f'DELETE FROM history')
+            
     def get_or_download(self, category):
         json_episodes = self.get(category)
         if not json_episodes:
@@ -173,4 +175,3 @@ class Cache:
                                   'thumb': thumb})
                 
         return episodes
-

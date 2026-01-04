@@ -30,6 +30,13 @@ def create_tables():
         '''
         conn.execute(table)
 
+        table = '''
+        CREATE TABLE IF NOT EXISTS history (
+                id            INTEGER  PRIMARY KEY AUTOINCREMENT,
+                title         TEXT
+                );
+        '''
+        conn.execute(table)
 
 def get_filename():
     addon = xbmcaddon.Addon()

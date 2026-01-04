@@ -33,10 +33,11 @@ def fetch_episodes(category, all=True):
     return data
 
 def fetch_episode(id):
-    (uid, token) = fetch_api_token()
-    resp = requests.get(URL_LIST_INFO.format(id, uid, token), headers={'x-tver-platform-type': 'web'}, timeout=10)
-    data = resp.json()
-
+    #https://api.p-c3-e.abema-tv.com/v1/video/programs/19-171_s1_p1?division=0&include=tvod
+    data = Abema._call_api(f'v1/video/programs/{id}', "", {'division': '0', 'include': 'tvod'})
+    #https://api.p-c3-e.abema-tv.com/v1/video/b/programs/536-1_s1_p1
+    air =  Abema._call_api(f'v1/video/b/programs/{id}', "", None)
+    data['data'] = air['data']
     return data
 
 def fetch_seasons(series_id):
@@ -69,3 +70,32 @@ def fetch_episode_group(season, episode):
             else:
                 finish = True
     return data
+def find_title(title):
+    data = []
+    #https://api.p-c3-e.abema-tv.com/v1/search/modules?query=%E3%81%86%E3%81%97%E3%81%8A&device=WEB&itemLimit=8
+    resp = Abema._call_api(f'v1/search/modules', "", {'query': title, 'device': 'WEB', 'itemLimit': '5'})
+    for module in resp['modules'] :
+        if module['id'] == 'package':
+            item = module['items'] 
+            results = item['content']['results']
+            for result in results :
+                if 'videoSeries' in result['contentData'].keys():
+                    info = result['contentData']['videoSeries']
+                    series = result['contentId']
+                else:
+                    info = result['contentData']['videoSeason']
+                    series = info['seriesId'] + '/' + result['contentId']
+                object = {}
+                object['title'] = info['title']
+                object['image'] = info['thumbnailPortrait']['urlPrefix']\
+                    + '/' + info['thumbnailPortrait']['filename']\
+                    + '?' + info['thumbnailPortrait']['query']
+
+                object['url'] = series
+                data.append(object)
+    return data
+
+def fetch_series_info(series_id):
+    resp = Abema._call_api(f'v1/contentlist/series/{series_id}', "", {'includes': 'liveEvent.slot'})
+
+    return resp
