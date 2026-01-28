@@ -31,7 +31,7 @@ def list_videos(category):
         vid_info = list_item.getVideoInfoTag()
         vid_info.setTitle(label)
         vid_info.setGenres([video['genre']])
-        vid_info.setTvShowTitle(video['name'])
+        vid_info.setTvShowTitle(video['series_title'])
         vid_info.setMediaType('video')
         list_item.setProperty('IsPlayable', 'true')
         list_item.setArt({'thumb': video['thumb'], 'icon': video['thumb'], 'fanart': video['fanart'], 'poster': video['fanart']})
@@ -68,7 +68,7 @@ def list_series(category, series, title):
                 vid_info = list_item.getVideoInfoTag()
                 vid_info.setTitle(label)
                 vid_info.setGenres([category])
-                vid_info.setTvShowTitle(video['name'])
+                vid_info.setTvShowTitle(title)
                 vid_info.setMediaType('video')
                 list_item.setArt({'thumb': video['thumb'], 'icon': video['thumb'], 'fanart': video['thumb']})
                 list_item.setProperty('IsPlayable', 'true')
@@ -77,7 +77,7 @@ def list_series(category, series, title):
                     context_menu_item = (context[0], 'RunPlugin({})'.format(get_url(action=context[1], series=title, season=video['season'], group=eg['id'], title=video.get('name',""))))
                     list_item.addContextMenuItems([context_menu_item])
 
-                url = get_url(action='list_episodes', season=video['season'], group=eg['id'], title=label)
+                url = get_url(action='list_episodes', season=video['season'], group=eg['id'], title=title)
                 is_folder = True
                 xbmcplugin.addDirectoryItem(_HANDLE, url, list_item, is_folder)
         else:
@@ -87,7 +87,7 @@ def list_series(category, series, title):
             vid_info = list_item.getVideoInfoTag()
             vid_info.setTitle(label)
             vid_info.setGenres([category])
-            vid_info.setTvShowTitle(video['name'])
+            vid_info.setTvShowTitle(title)
             vid_info.setMediaType('video')
             list_item.setArt({'thumb': video['thumb'], 'icon': video['thumb'], 'fanart': video['thumb']})
             list_item.setProperty('IsPlayable', 'true')
@@ -96,7 +96,7 @@ def list_series(category, series, title):
                 context_menu_item = (context[0], 'RunPlugin({})'.format(get_url(action=context[1], series=series, season=video['season'], group="None", title=label)))
                 list_item.addContextMenuItems([context_menu_item])
             
-            url = get_url(action='list_episodes', season=video['season'], group="None", title=label)
+            url = get_url(action='list_episodes', season=video['season'], group="None", title=title)
             is_folder = True
             xbmcplugin.addDirectoryItem(_HANDLE, url, list_item, is_folder)
     
@@ -120,7 +120,7 @@ def list_episodes(season, group, title):
         
         vid_info = list_item.getVideoInfoTag()
         vid_info.setTitle(label)
-        vid_info.setTvShowTitle(label)
+        vid_info.setTvShowTitle(title)
         vid_info.setPlot(video['desc'])
         vid_info.setMediaType('video')
         list_item.setArt({'thumb': video['thumb'], 'icon': video['thumb'], 'fanart': video['thumb']})
