@@ -43,8 +43,8 @@ def fetch_episode(id):
 def fetch_seasons(series_id):
     data = []
     resp = Abema._call_api(f'v1/contentlist/series/{series_id}', "", {'includes': 'liveEvent.slot'})
-    data.extend(resp['seasons'])
-
+    if resp.get('seasons'):
+        data.extend(resp['seasons'])
     return data
     
 def fetch_episode_group(season, episode):
@@ -63,7 +63,10 @@ def fetch_episode_group(season, episode):
         while not finish:
             series = season.split('_')[0]
             #https://api.p-c3-e.abema-tv.com/v1/video/series/89-66/programs?seasonId=89-66_s99&order=-seq&limit=20&offset=0
-            resp = Abema._call_api(f'v1/video/series/{series}/programs', "", {'seasonId': season, 'limit': 20, 'order': '-seq', 'offset': offset})
+            if season == series + '_None':
+                resp = Abema._call_api(f'v1/video/series/{series}/programs', "", {'limit': 20, 'order': '-seq', 'offset': offset})
+            else:
+                resp = Abema._call_api(f'v1/video/series/{series}/programs', "", {'seasonId': season, 'limit': 20, 'order': '-seq', 'offset': offset})
             if resp['programs'] :
                 data.extend(resp['programs'])
                 offset += len(resp['programs'])
