@@ -56,7 +56,7 @@ def list_series(category, series, title):
 
     videos = []
     context = (localize(30020), 'save_season')
-
+    #import web_pdb; web_pdb.set_trace()
     videos = Cache().get_series_episodes(series)
 
     for video in videos:
@@ -136,6 +136,38 @@ def list_episodes(season, group, title):
     xbmcplugin.addSortMethod(_HANDLE, xbmcplugin.SORT_METHOD_DATEADDED)
     xbmcplugin.endOfDirectory(_HANDLE)
     
+def list_live():
+    xbmcplugin.setPluginCategory(_HANDLE, "live")
+    xbmcplugin.setContent(_HANDLE, 'movies')
+    #import web_pdb; web_pdb.set_trace()
+
+    videos = []
+    context = None
+
+    videos = abema.get_channels()
+
+    for video in videos:
+        label = video['name']
+        list_item = xbmcgui.ListItem(label=label, offscreen=True)
+        
+        vid_info = list_item.getVideoInfoTag()
+        vid_info.setTitle(label)
+        #vid_info.setTvShowTitle(label)
+        #vid_info.setPlot(video['desc'])
+        vid_info.setMediaType('video')
+        #list_item.setArt({'thumb': video['thumb'], 'icon': video['thumb'], 'fanart': video['thumb']})
+        list_item.setProperty('IsPlayable', 'true')
+
+        url = get_url(action='play_live', video=video['id'])
+        is_folder = False
+
+        xbmcplugin.addDirectoryItem(_HANDLE, url, list_item, is_folder)
+    
+    xbmcplugin.addSortMethod(_HANDLE, xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(_HANDLE, xbmcplugin.SORT_METHOD_VIDEO_TITLE)
+    xbmcplugin.addSortMethod(_HANDLE, xbmcplugin.SORT_METHOD_DATEADDED)
+    xbmcplugin.endOfDirectory(_HANDLE)
+    
 def get_categories():
     cats = abema.get_categories()
 
@@ -157,6 +189,12 @@ def list_categories():
         url = get_url(action='listing', category=item['id'])
         is_folder = True
         xbmcplugin.addDirectoryItem(_HANDLE, url, list_item, is_folder)
+
+    #live
+    list_item = xbmcgui.ListItem(label='Live', offscreen=True)
+    url = get_url(action='live')
+    is_folder = True
+    xbmcplugin.addDirectoryItem(_HANDLE, url, list_item, is_folder)
 
     #search
     list_item = xbmcgui.ListItem(label='Search', offscreen=True)
@@ -194,6 +232,46 @@ def play_video(video):
         list_item.setContentLookup(False)
         list_item.setProperty('inputstream', 'inputstream.adaptive')
         #list_item.setProperty('inputstream.adaptive.manifest_type', adaptive_type)
+
+    xbmcplugin.setResolvedUrl(_HANDLE, True, listitem=list_item)
+
+def play_live(video):
+    #import web_pdb; web_pdb.set_trace()
+    url = 'https://abema.tv/now-on-air/' + video
+    info = extract_info(url)
+    url = extract_manifest_url_from_info(info)
+    slots = abema.fetch_slots()
+    title = ""
+    
+    for slot in slots['slots']:
+        if slot['channelId'] == video:
+            title = slot['title']
+            break;
+        
+    adaptive_type = False
+
+    if url:
+        adaptive_type = get_adaptive_type_from_url(url)
+
+    if not url or not check_if_kodi_supports_manifest(adaptive_type):
+        err_msg = localize(33000)
+        log(err_msg)
+        show_info(err_msg)
+        raise Exception(err_msg)
+
+    # proxy
+    res = urlparse(url)
+    url = 'http://127.0.0.1:51041/video.abema/' + res.netloc + res.path
+    list_item = xbmcgui.ListItem(title, path=url)
+    list_item.setProperty("IsPlayable","true")
+    vid_info = list_item.getVideoInfoTag()
+    vid_info.setTitle(title)
+    
+    if adaptive_type:
+        list_item.setMimeType('application/x-mpegURL')
+        list_item.setContentLookup(True)
+        list_item.setProperty('inputstream', 'inputstream.adaptive')
+        list_item.setProperty('inputstream.adaptive.manifest_type', adaptive_type)
 
     xbmcplugin.setResolvedUrl(_HANDLE, True, listitem=list_item)
 
@@ -255,6 +333,8 @@ def router(paramstring):
             list_videos(params['category'])
         elif action == 'play':
             play_video(params['video'])
+        elif action == 'play_live':
+            play_live(params['video'])
         elif action == 'list_series':
             list_series(params['category'], params['series'], params['series_title'])
         elif action == 'list_episodes':
@@ -271,6 +351,8 @@ def router(paramstring):
             Cache().delete_cache()
             func = "Container.Refresh"
             xbmc.executebuiltin(func)
+        elif action == 'live':
+            list_live()
         else:
             raise ValueError('Invalid paramstring: {}!'.format(paramstring))
     else:

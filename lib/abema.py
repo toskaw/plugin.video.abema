@@ -102,3 +102,14 @@ def fetch_series_info(series_id):
     resp = Abema._call_api(f'v1/contentlist/series/{series_id}', "", {'includes': 'liveEvent.slot'})
 
     return resp
+
+def get_channels():
+    channels = Abema._download_json('https://api.abema.io/v1/channels', "1")
+    return channels['channels']
+
+def fetch_slots():
+    #https://api.p-c3-e.abema-tv.com/v1/broadcast/slots
+    resp = Abema._call_api('v1/broadcast/slots', "", {})
+
+    return resp
+
