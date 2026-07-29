@@ -8,6 +8,7 @@ from lib.yt_dlp import YoutubeDL
 from lib.yt_dlp.extractor.abematv import AbemaTVIE, AbemaLicenseRH
 import xbmc
 import xbmcaddon
+import time
 
 PREFIX = '/video.abema'
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -49,6 +50,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             xbmc.log('HTTP GET url= {}'.format(url),xbmc.LOGINFO)
             res = requests.get(url)
             body = re.sub(b'URI=.*?://', b'URI=\"/video.abema/key/', res.content)
+            body = re.sub(b'^#EXT-X-DISCONTINUITY', b'', body, flags=re.MULTILINE)
             self.send_response(res.status_code)
             self.send_header('content-type', res.headers['content-type'])
             self.end_headers()
@@ -65,13 +67,20 @@ if __name__ == '__main__':
     # cache warming
     cache = Cache()
     cache.delete_expired()
+    for _ in range(10):
+        try:
+            address = '127.0.0.1'  # Localhost
+            # The port in this example is fixed, DO NOT USE A FIXED PORT!
+            # Other add-ons, or operating system functionality, or other software may use the same port!
+            # You have to implement a way to get a random free port
+            port = 51041
+            server_inst = TCPServer((address, port), SimpleHTTPRequestHandler)
+        except Exception as e:
+            time.sleep(1) # 適当に待つ
+        else:
+            break
 
-    address = '127.0.0.1'  # Localhost
-    # The port in this example is fixed, DO NOT USE A FIXED PORT!
-    # Other add-ons, or operating system functionality, or other software may use the same port!
-    # You have to implement a way to get a random free port
-    port = 51041
-    server_inst = TCPServer((address, port), SimpleHTTPRequestHandler)
+        
     # The follow line is only for test purpose, you have to implement a way to stop the http service!
     #server_inst.serve_forever()
     import threading
