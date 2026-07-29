@@ -261,7 +261,7 @@ def play_live(video):
 
     # proxy
     res = urlparse(url)
-    url = 'http://127.0.0.1:51041/video.abema/' + res.netloc + res.path
+    url = 'http://127.0.0.1:51041/live.abema/' + res.netloc + res.path
     list_item = xbmcgui.ListItem(title, path=url)
     list_item.setProperty("IsPlayable","true")
     vid_info = list_item.getVideoInfoTag()
