@@ -101,13 +101,17 @@ if __name__ == '__main__':
     # cache warming
     cache = Cache()
     cache.delete_expired()
-    address = '127.0.0.1'  # Localhost
-    # The port in this example is fixed, DO NOT USE A FIXED PORT!
-    # Other add-ons, or operating system functionality, or other software may use the same port!
-    # You have to implement a way to get a random free port
-    port = 51041
-    server_inst = TCPServer((address, port), SimpleHTTPRequestHandler)
 
+    try:    
+        address = '127.0.0.1'  # Localhost
+        # The port in this example is fixed, DO NOT USE A FIXED PORT!
+        # Other add-ons, or operating system functionality, or other software may use the same port!
+        # You have to implement a way to get a random free port
+        port = 51041
+        server_inst = TCPServer((address, port), SimpleHTTPRequestHandler)
+    except Exception:
+        xbmc.executebuiltin('Quit')
+        
     # The follow line is only for test purpose, you have to implement a way to stop the http service!
     #server_inst.serve_forever()
     import threading
