@@ -108,9 +108,13 @@ if __name__ == '__main__':
         # Other add-ons, or operating system functionality, or other software may use the same port!
         # You have to implement a way to get a random free port
         port = 51041
-        server_inst = TCPServer((address, port), SimpleHTTPRequestHandler)
+        server_inst = TCPServer((address, port), SimpleHTTPRequestHandler, bind_and_activate=False)
+        server_inst.allow_reuse_address = True
+        server_inst.server_bind()
+        server_inst.server_activate()
     except Exception:
-        xbmc.executebuiltin('Quit')
+        #xbmc.executebuiltin('Quit')
+        raise
         
     # The follow line is only for test purpose, you have to implement a way to stop the http service!
     #server_inst.serve_forever()
