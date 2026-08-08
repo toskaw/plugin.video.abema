@@ -150,20 +150,25 @@ def list_live():
     for video in videos:
         label = video['name']
         label2 = ""
-
+        thumb_id = ""
+        thumb_name = ""
+        channel = video['id']
+        icon = f'https://image.p-c2-x.abema-tv.com/image/channels/{channel}/logo.png'
         for slot in slots['slots']:
-            if slot['channelId'] == video['id']:
+            if slot['channelId'] == channel:
                 label2 = slot['title']
+                thumb_id = slot['thumbnails']['default']['id']
+                thumb_name  = slot['thumbnails']['default']['name']
                 break;
 
         list_item = xbmcgui.ListItem(label=label, label2=label2, offscreen=True)
-        
+        thumbnail = f'https://image.p-c2-x.abema-tv.com/image/programs/{thumb_id}/{thumb_name}.png'
         vid_info = list_item.getVideoInfoTag()
-        vid_info.setTitle(label+":"+label2)
+        vid_info.setTitle(label2)
         vid_info.setTvShowTitle(label2)
         #vid_info.setPlot(video['desc'])
         vid_info.setMediaType('tvshow')
-        #list_item.setArt({'thumb': video['thumb'], 'icon': video['thumb'], 'fanart': video['thumb']})
+        list_item.setArt({'icon': icon, 'banner': thumbnail, 'fanart': thumbnail})
         list_item.setProperty('IsPlayable', 'true')
 
         url = get_url(action='play_live', video=video['id'])
