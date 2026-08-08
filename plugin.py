@@ -145,16 +145,24 @@ def list_live():
     context = None
 
     videos = abema.get_channels()
+    slots = abema.fetch_slots()
 
     for video in videos:
         label = video['name']
-        list_item = xbmcgui.ListItem(label=label, offscreen=True)
+        label2 = ""
+
+        for slot in slots['slots']:
+            if slot['channelId'] == video['id']:
+                label2 = slot['title']
+                break;
+
+        list_item = xbmcgui.ListItem(label=label, label2=label2, offscreen=True)
         
         vid_info = list_item.getVideoInfoTag()
-        vid_info.setTitle(label)
-        #vid_info.setTvShowTitle(label)
+        vid_info.setTitle(label+":"+label2)
+        vid_info.setTvShowTitle(label2)
         #vid_info.setPlot(video['desc'])
-        vid_info.setMediaType('video')
+        vid_info.setMediaType('tvshow')
         #list_item.setArt({'thumb': video['thumb'], 'icon': video['thumb'], 'fanart': video['thumb']})
         list_item.setProperty('IsPlayable', 'true')
 
