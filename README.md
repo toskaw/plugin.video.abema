@@ -2,7 +2,7 @@
 # ABEMA プラグイン
 
 ABEMAの配信コンテンツをkodiで視聴するためのプラグインです。
-ライブ放送は未対応です。ライブ放送は[abema_m3uplaylist](https://github.com/toskaw/abema_m3uplaylist)をお使いください。
+
 ## インストール
 
   zipファイルをダウンロードして、システム>アドオン>ZIPファイルからインストール
