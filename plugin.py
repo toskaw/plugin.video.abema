@@ -215,6 +215,25 @@ def list_categories():
     is_folder = True
     xbmcplugin.addDirectoryItem(_HANDLE, url, list_item, is_folder)
 
+    #lastplay channel
+    ch = xbmcaddon.Addon().getSetting('lastchannel')
+    if ch:
+        videos = abema.get_channels()
+        for video in videos:
+            if ch == video['id']:
+                label = video['name']
+                icon = f'https://image.p-c2-x.abema-tv.com/image/channels/{ch}/logo.png'
+                list_item = xbmcgui.ListItem(label=label, offscreen=True)
+                vid_info = list_item.getVideoInfoTag()
+                vid_info.setTitle(label)
+                vid_info.setMediaType('tvshow')
+                list_item.setArt({'icon': icon})
+                list_item.setProperty('IsPlayable', 'true')
+                url = get_url(action='play_live', video=ch)
+                is_folder = False
+                xbmcplugin.addDirectoryItem(_HANDLE, url, list_item, is_folder)
+                break
+            
     xbmcplugin.addSortMethod(_HANDLE, xbmcplugin.SORT_METHOD_NONE)
     xbmcplugin.endOfDirectory(_HANDLE)
 
@@ -260,6 +279,7 @@ def play_live(video):
     url = extract_manifest_url_from_info(info)
     slots = abema.fetch_slots()
     title = ""
+    xbmcaddon.Addon().setSetting('lastchannel', video)
     
     for slot in slots['slots']:
         if slot['channelId'] == video:
