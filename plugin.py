@@ -304,20 +304,21 @@ def play_live(video):
     list_item.setProperty("IsPlayable","true")
     vid_info = list_item.getVideoInfoTag()
     vid_info.setTitle(title)
-    
-    if adaptive_type:
-        list_item.setMimeType('application/x-mpegURL')
-        list_item.setContentLookup(False)
+
+    useISA = xbmcaddon.Addon().getSetting('useISA')
+    list_item.setMimeType('application/x-mpegURL')
+    list_item.setContentLookup(False)
+    if useISA == "true":
         list_item.setProperty('inputstream', 'inputstream.adaptive')
+        list_item.setProperty('inputstream.adaptive.manifest_config', '{"timeshift_bufferlimit":900,"hls_ignore_endlist":false, "live_delay": "30", "hls_fix_mediasequence": true, "hls_fix_discsequence":true}')
+        list_item.setProperty('inputstream.adaptive.play_timeshift_buffer', 'true')
+    else:
+        list_item.setProperty('inputstream', 'inputstream.ffmpegdirect')
+        list_item.setProperty('inputstream.ffmpegdirect.mime_type', 'application/x-mpegURL')
+        list_item.setProperty('inputstream.ffmpegdirect.is_realtime_stream', 'true')
+        list_item.setProperty('inputstream.ffmpegdirect.stream_mode', 'timeshift')
+        list_item.setProperty('inputstream.ffmpegdirect.manifest_type', 'hls')
 
-        #list_item.setProperty('inputstream', 'inputstream.ffmpegdirect')
-        #list_item.setProperty('inputstream.ffmpegdirect.mime_type', 'application/x-mpegURL')
-        #list_item.setProperty('inputstream.ffmpegdirect.is_realtime_stream', 'true')
-        #list_item.setProperty('inputstream.ffmpegdirect.stream_mode', 'timeshift')
-        #list_item.setProperty('inputstream.ffmpegdirect.manifest_type', 'hls')
-
-        #list_item.setProperty('inputstream.adaptive.manifest_config', '{"timeshift_bufferlimit":900,"hls_ignore_endlist":false, "live_delay": "30", "hls_fix_mediasequence": true, "hls_fix_discsequence":true}')
-        #list_item.setProperty('inputstream.adaptive.play_timeshift_buffer', 'true')
     xbmcplugin.setResolvedUrl(_HANDLE, True, listitem=list_item)
 
 def save_series(series, title):

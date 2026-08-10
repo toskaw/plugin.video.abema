@@ -70,6 +70,10 @@ msgctxt "#30041"
 msgid "Save folder"
 msgstr "保存フォルダ"
 
+msgctxt "#30042"
+msgid "Use InputStream Adaptive"
+msgstr "InputStream Adaptiveを使用する"
+
 msgctxt "#30050"
 msgid "Cache"
 msgstr "キャッシュ"

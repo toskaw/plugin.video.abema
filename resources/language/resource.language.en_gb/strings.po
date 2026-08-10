@@ -69,6 +69,10 @@ msgctxt "#30041"
 msgid "Save folder"
 msgstr ""
 
+msgctxt "#30042"
+msgid "Use InputStream Adaptive"
+msgstr ""
+
 msgctxt "#30050"
 msgid "Cache"
 msgstr ""
