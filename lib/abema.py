@@ -1,6 +1,6 @@
 from lib.yt_dlp import YoutubeDL
 from lib.yt_dlp.extractor.abematv import AbemaTVTitleIE
-
+import xbmc
 import json
 
 Ydl = YoutubeDL()
@@ -10,12 +10,12 @@ def get_categories():
     categories = Abema._call_api('v1/video/genres', "", {'subscriptionType': 'basic', 'device': 'web', 'genreStructured': 'true'})
     cats = []
     for category in categories['genres']:
-        episodes = fetch_episodes(category['id'], False)
+        episodes = fetch_episodes(category['id'], 20)
         if len(episodes) != 0 :
             cats.append(category)
     return cats
 
-def fetch_episodes(category, all=True):
+def fetch_episodes(category, count=0):
     data = []
     finish = False
     next = ''
@@ -26,10 +26,13 @@ def fetch_episodes(category, all=True):
             data.extend(resp['cards'])
             if resp['paging']:
                 next = resp['paging']['next']
+            else:
+                finish = True
         else:
             finish = True
-        if not all:
-            finish = True
+        if count != 0:
+            if len(data) > count:
+                finish = True
     return data
 
 def fetch_episode(id):
