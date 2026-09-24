@@ -90,7 +90,38 @@ msgctxt "#30071"
 msgid "Remove"
 msgstr "削除"
 
+# Settings
+msgctxt "#32001"
+msgid "Dialog"
+msgstr ""
+
+msgctxt "#32002"
+msgid "Auto-close dialog after (seconds)"
+msgstr ""
+
+msgctxt "#32003"
+msgid "Automatically skip intros"
+msgstr ""
+
+msgctxt "#32004"
+msgid "Skip margin (seconds)"
+msgstr "スキップ時間調整値（秒）"
+
+# Dialog buttons
+msgctxt "#32010"
+msgid "Skip Intro"
+msgstr "スキップ"
+
+msgctxt "#32011"
+msgid "Skip Credits"
+msgstr "終了"
+
+msgctxt "#32012"
+msgid "Skip to Stinger"
+msgstr "エンディングをスキップ"
+
 # messages
 msgctxt "#33000"
 msgid "failed to extract stream"
 msgstr "ストリームの抽出に失敗しました"
+

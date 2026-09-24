@@ -1,10 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<addon id="plugin.video.abema" name="AbemaTV" version="1.1.0" provider-name="toskawa">
+<addon id="plugin.video.abema" name="AbemaTV" version="2.1.0" provider-name="toskawa">
   <requires>
     <import addon="xbmc.python" version="3.0.1" />
     <import addon="script.module.inputstreamhelper" version="0.6.0" />
     <import addon="script.module.requests" version="2.27.1" />
     <import addon="script.module.simplejson" version="2.0.10" />
+    <import addon="script.module.yt-dlp" version="2026.08.19-1" />
     <!-- <import addon="script.module.web-pdb" version="1.5.6"/> -->
   </requires>
 

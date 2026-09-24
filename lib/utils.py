@@ -55,8 +55,8 @@ def patch_strptime():
     datetime.datetime = proxydt
 
 def extract_info(url):
-    from lib.yt_dlp import YoutubeDL
-    from lib.yt_dlp.extractor.abematv import AbemaTVIE
+    from yt_dlp import YoutubeDL
+    from yt_dlp.extractor.abematv import AbemaTVIE
 
     patch_strptime()
 

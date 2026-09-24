@@ -1,5 +1,5 @@
-from lib.yt_dlp import YoutubeDL
-from lib.yt_dlp.extractor.abematv import AbemaTVTitleIE
+from yt_dlp import YoutubeDL
+from yt_dlp.extractor.abematv import AbemaTVTitleIE
 import xbmc
 import json
 
@@ -116,3 +116,10 @@ def fetch_slots():
 
     return resp
 
+def fetch_markers(video_id):
+    resp = Abema._call_api(
+        f'v1/video/programs/{video_id}',video_id)
+ 
+    data = resp['playbackMarkers']
+
+    return data

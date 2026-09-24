@@ -5,6 +5,8 @@ import xbmcplugin
 import xbmcvfs
 import xbmcaddon
 
+import simplejson as json
+
 import re
 
 from lib import abema
@@ -241,7 +243,27 @@ def play_video(video):
     url = f'https://abema.tv/video/episode/{video}'
     info = extract_info(url)
     url = extract_manifest_url_from_info(info)
+    skip = abema.fetch_markers(video)
+    #import web_pdb; web_pdb.set_trace()
 
+    skipdata = {}
+    for obj in skip:
+        for k, v in obj.items():
+            item = {}
+            stinger = {}
+            item['start'] = float(v.get('startTimeMs', 0)) / 1000
+            item['end'] = float(v.get('endTimeMs', 0)) / 1000
+            if k == "opening":
+                skipdata['intro'] = item
+            if k == "ending":
+                skipdata['credits'] = item
+                if item['end'] != 0 :
+                    stinger['start'] = item['end']
+                    stinger['end'] = 0
+                    skipdata['stinger'] = stinger
+            
+            break
+        
     adaptive_type = False
 
     if url:
@@ -258,7 +280,9 @@ def play_video(video):
     url = 'http://127.0.0.1:51041/video.abema/' + res.netloc + res.path
     list_item = xbmcgui.ListItem(info['title'], path=url)
     list_item.setProperty("IsPlayable","true")
-    
+    skip_json = json.dumps(skipdata)
+    xbmcaddon.Addon().setSetting('skipdata', skip_json)
+
     if adaptive_type:
         list_item.setMimeType('application/x-mpegURL')
         list_item.setContentLookup(False)
@@ -320,6 +344,7 @@ def play_live(video):
         list_item.setProperty('inputstream.ffmpegdirect.manifest_type', 'hls')
 
     xbmcplugin.setResolvedUrl(_HANDLE, True, listitem=list_item)
+    xbmcaddon.Addon().setSetting('skipdata', '{}')
 
 def save_series(series, title):
     title = re.sub(r'[\\/:*?"<>|]+','', title)

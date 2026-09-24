@@ -93,3 +93,33 @@ msgstr ""
 msgctxt "#33000"
 msgid "failed to extract stream"
 msgstr ""
+
+# Settings
+msgctxt "#32001"
+msgid "Dialog"
+msgstr ""
+
+msgctxt "#32002"
+msgid "Auto-close dialog after (seconds)"
+msgstr ""
+
+msgctxt "#32003"
+msgid "Automatically skip intros"
+msgstr ""
+
+msgctxt "#32004"
+msgid "Skip margin (seconds)"
+msgstr ""
+
+# Dialog buttons
+msgctxt "#32010"
+msgid "Skip Intro"
+msgstr ""
+
+msgctxt "#32011"
+msgid "Skip Credits"
+msgstr ""
+
+msgctxt "#32012"
+msgid "Skip to Stinger"
+msgstr ""

@@ -4,12 +4,13 @@ from socketserver import TCPServer
 from urllib.parse import unquote, urlparse
 import requests
 import re
-from lib.yt_dlp import YoutubeDL
-from lib.yt_dlp.extractor.abematv import AbemaTVIE, AbemaLicenseRH
+from yt_dlp import YoutubeDL
+from yt_dlp.extractor.abematv import AbemaTVIE, AbemaLicenseRH
 import xbmc
 import xbmcaddon
 import time
 import simplejson as json
+from resources.lib.skiptro import main
 
 PREFIX = '/video.abema'
 LIVE =   '/live.abema'
@@ -80,7 +81,60 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             except Exception:
                 self.send_response(500)
                 self.end_headers()
+    def do_HEAD(self):
+        path = self.path  # Path with parameters received from request e.g. "/manifest?id=234324"
+        xbmc.log('HTTP GET Request received to {}'.format(path),xbmc.LOGINFO)
+        if path[0:len(PREFIX)] != PREFIX and path[0:len(LIVE)] != LIVE:
+            orig = xbmcaddon.Addon().getSetting(id='orig')
+            if orig :
+                url = 'https://'+ orig + path
+                xbmc.log('redirect url= {}'.format(url),xbmc.LOGINFO)
+                #res = requests.get(url)
+                #body = res.content
+                self.send_response(301)
+                self.send_header('Location', url)
+                self.end_headers()
+            else:
+                self.send_response(404)
+                self.end_headers()
+            return
+        elif path[0:len(LIVE)] == LIVE:
+            try:
+                if '/key/' in path:
+                    ticket = path[len(LIVE)+len('/key/'):]
+                    return self.get_license(ticket)
+                url = 'https:/' + path[len(LIVE):]
+                orig = urlparse(url).netloc
+                xbmcaddon.Addon().setSetting(id='orig', value=orig)
+                xbmc.log('HTTP GET url= {}'.format(url),xbmc.LOGINFO)
+                res = requests.get(url)
+                body = re.sub(b'URI=.*?://', b'URI=\"/live.abema/key/', res.content)
+                body = re.sub(b'^#EXT-X-DISCONTINUITY.*$', b'', body, flags=re.MULTILINE)
 
+                self.send_response(res.status_code)
+                self.send_header('content-type', res.headers['content-type'])
+                self.end_headers()
+            except Exception:
+                self.send_response(500)
+                self.end_headers()
+        else:
+            try:
+                if '/key/' in path:
+                    ticket = path[len(PREFIX)+len('/key/'):]
+                    return self.get_license(ticket)
+                url = 'https:/' + path[len(PREFIX):]
+                orig = urlparse(url).netloc
+                xbmcaddon.Addon().setSetting(id='orig', value=orig)
+                xbmc.log('HTTP GET url= {}'.format(url),xbmc.LOGINFO)
+                res = requests.get(url)
+                body = re.sub(b'URI=.*?://', b'URI=\"/video.abema/key/', res.content)
+                self.send_response(res.status_code)
+                self.send_header('content-type', res.headers['content-type'])
+                self.end_headers()
+            except Exception:
+                self.send_response(500)
+                self.end_headers()
+    
 def sendJSON(method, json_params = {}):
 
     #This the generated JSON-RPC query code
@@ -124,12 +178,16 @@ if __name__ == '__main__':
     server_thread.daemon = True  # デーモンスレッドにするとメインスレッドが終わるとPythonプログラムが終了してしまう。
     server_thread.start()  # スレッドの受付を開始。
 
-    monitor = xbmc.Monitor()
+    #monitor = xbmc.Monitor()
+    main()
     
-    while not monitor.abortRequested():
+    #while not monitor.abortRequested():
         # Sleep/wait for abort for 10 seconds
-        if monitor.waitForAbort(10):
-            # Abort was requested while waiting. We should exit
-            server_inst.shutdown()
-            break
+        #if monitor.waitForAbort(10):
+    # Abort was requested while waiting. We should exit
+    server_inst.shutdown()
+    server_inst.server_close()  # ソケットを閉じる
+    server_thread.join()  # スレッドの終了を待つ
+
         
+    xbmc.log("server stop",xbmc.LOGINFO)
