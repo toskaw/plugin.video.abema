@@ -5,9 +5,9 @@ ABEMAの配信コンテンツをkodiで視聴するためのプラグインで�
 
 ## インストール
 
-  zipファイルをダウンロードして、システム>アドオン>ZIPファイルからインストール
-  version 2からyt-dlpを分離しました
-  [script.module.yt-dlp](https://github.com/lekma/script.module.yt-dlp)が必要です。
+  zipファイルをダウンロードして、システム>アドオン>ZIPファイルからインストール<br>
+  version 2からyt-dlpを分離しました<br>
+  [script.module.yt-dlp](https://github.com/lekma/script.module.yt-dlp)が必要です。<br>
   
 ## スクリーンショット
 <img src="https://github.com/toskaw/plugin.video.abema/blob/master/screenshots/p1.png?raw=true" alt="screenshot 1" width="400"/>
