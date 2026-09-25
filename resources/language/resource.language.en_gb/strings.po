@@ -51,6 +51,18 @@ msgctxt "#30010"
 msgid "Others"
 msgstr ""
 
+msgctxt "#30011"
+msgid "Live"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Search"
+msgstr ""
+
+msgctxt "#30013"
+msgid "New Search"
+msgstr ""
+
 # context menus
 msgctxt "#30020"
 msgid "Save download script"

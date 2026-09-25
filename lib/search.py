@@ -28,17 +28,18 @@ class Search:
         list = []
         title = ""
         
+        #keybord input
+        li = xbmcgui.ListItem(localize(30013))
+        list.append(li)
+
         for history in histories:
             li = xbmcgui.ListItem(history[0])
             list.append(li)
 
-        #keybord input
-        li = xbmcgui.ListItem('INPUT title')
-        list.append(li)
         
         dialog = xbmcgui.Dialog()
-        selected_index = dialog.select('history', list)
-        if selected_index >= len(histories):
+        selected_index = dialog.select('Search', list)
+        if selected_index == 0:
             dialog = xbmcgui.Dialog()
             title = dialog.input('Input title', type=xbmcgui.INPUT_ALPHANUM)
             match = re.match(r'^abema:(.*)$', title)
@@ -56,10 +57,11 @@ class Search:
                         if season['id'] != season_id :
                             continue;
                         title = season.get('name', title)
-            self.insert(title)
+            if title:
+                self.insert(title)
 
         elif selected_index >= 0:
-            title = histories[selected_index]
+            title = histories[selected_index - 1]
         if not title:
             return
         results = find_title(title)

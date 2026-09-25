@@ -206,13 +206,13 @@ def list_categories():
         xbmcplugin.addDirectoryItem(_HANDLE, url, list_item, is_folder)
 
     #live
-    list_item = xbmcgui.ListItem(label='Live', offscreen=True)
+    list_item = xbmcgui.ListItem(label=localize(30011), offscreen=True)
     url = get_url(action='live')
     is_folder = True
     xbmcplugin.addDirectoryItem(_HANDLE, url, list_item, is_folder)
 
     #search
-    list_item = xbmcgui.ListItem(label='Search', offscreen=True)
+    list_item = xbmcgui.ListItem(label=localize(30012), offscreen=True)
     url = get_url(action='search')
     is_folder = True
     xbmcplugin.addDirectoryItem(_HANDLE, url, list_item, is_folder)
