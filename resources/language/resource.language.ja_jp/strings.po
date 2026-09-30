@@ -86,6 +86,10 @@ msgctxt "#30042"
 msgid "Use InputStream Adaptive"
 msgstr "InputStream Adaptiveを使用する"
 
+msgctxt "#30043"
+msgid "Ignore EXT-X-DISCONTINUITY with Live stream."
+msgstr "Liveで EXT-X-DISCONTINUITY を無視する"
+
 msgctxt "#30050"
 msgid "Cache"
 msgstr "キャッシュ"

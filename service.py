@@ -11,12 +11,15 @@ import xbmcaddon
 import time
 import simplejson as json
 from resources.lib.skiptro import main
+import datetime
+import html
 
 PREFIX = '/video.abema'
 LIVE =   '/live.abema'
+PLAYLIST = '/playlist/'
+Ydl = YoutubeDL()
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def get_license(self, ticket):
-        Ydl = YoutubeDL()
         Abema = Ydl.get_info_extractor("AbemaTVTitle")        
         lh = AbemaLicenseRH(ie=Abema, logger=None)
         license_data = lh._get_videokey_from_ticket(ticket)
@@ -29,7 +32,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path  # Path with parameters received from request e.g. "/manifest?id=234324"
         xbmc.log('HTTP GET Request received to {}'.format(path),xbmc.LOGINFO)
-        if path[0:len(PREFIX)] != PREFIX and path[0:len(LIVE)] != LIVE:
+        if path[0:len(PREFIX)] != PREFIX and path[0:len(LIVE)] != LIVE and path[0:len(PLAYLIST)] != PLAYLIST:
             orig = xbmcaddon.Addon().getSetting(id='orig')
             if orig :
                 url = 'https://'+ orig + path
@@ -52,10 +55,11 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 orig = urlparse(url).netloc
                 xbmcaddon.Addon().setSetting(id='orig', value=orig)
                 xbmc.log('HTTP GET url= {}'.format(url),xbmc.LOGINFO)
+                ignore = xbmcaddon.Addon().getSettingBool(id='ignore_discont')
                 res = requests.get(url)
                 body = re.sub(b'URI=.*?://', b'URI=\"/live.abema/key/', res.content)
-                body = re.sub(b'^#EXT-X-DISCONTINUITY.*$', b'', body, flags=re.MULTILINE)
-
+                if ignore:
+                    body = re.sub(b'^#EXT-X-DISCONTINUITY.*$', b'', body, flags=re.MULTILINE)
                 self.send_response(res.status_code)
                 self.send_header('content-type', res.headers['content-type'])
                 self.end_headers()
@@ -63,6 +67,8 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             except Exception:
                 self.send_response(500)
                 self.end_headers()
+        elif path[0:len(PLAYLIST)] == PLAYLIST:
+            self.makePlaylist(path)
         else:
             try:
                 if '/key/' in path:
@@ -81,6 +87,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             except Exception:
                 self.send_response(500)
                 self.end_headers()
+
     def do_HEAD(self):
         path = self.path  # Path with parameters received from request e.g. "/manifest?id=234324"
         xbmc.log('HTTP GET Request received to {}'.format(path),xbmc.LOGINFO)
@@ -107,9 +114,12 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 orig = urlparse(url).netloc
                 xbmcaddon.Addon().setSetting(id='orig', value=orig)
                 xbmc.log('HTTP GET url= {}'.format(url),xbmc.LOGINFO)
+                ignore = xbmcaddon.Addon().getSettingBool(id='ignore_discont')
                 res = requests.get(url)
                 body = re.sub(b'URI=.*?://', b'URI=\"/live.abema/key/', res.content)
-                body = re.sub(b'^#EXT-X-DISCONTINUITY.*$', b'', body, flags=re.MULTILINE)
+                if ignore:
+                    body = re.sub(b'^#EXT-X-DISCONTINUITY.*$', b'', body, flags=re.MULTILINE)
+
 
                 self.send_response(res.status_code)
                 self.send_header('content-type', res.headers['content-type'])
@@ -134,7 +144,63 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             except Exception:
                 self.send_response(500)
                 self.end_headers()
+
+    def makePlaylist(self, path):
+        file = path[len(PLAYLIST):]
+        if '.m3u' in file:
+            #playlist
+            xbmc.log('HTTP GET playlist', xbmc.LOGINFO)
+            body = self.getPlaylist()
+        else:
+            #epg
+            xbmc.log('HTTP GET epg', xbmc.LOGINFO)
+            body = self.getEPG()
+        
+        self.send_response(200)
+        self.end_headers()
+        data = bytes(body, encoding='utf-8')
+        self.wfile.write(data)
     
+    def getPlaylist(self):
+        Abema = Ydl.get_info_extractor("AbemaTVTitle")
+        timetable = Abema._call_api(
+            'v1/timetable/dataSet', '', {'debug': 'false'})
+        body = '#EXTM3U url-tvg="http://127.0.0.1:51041/playlist/abema.xml" refresh="3600"\n\n'
+        channels = timetable['channels']
+        for channel in channels:
+            id = channel['id']
+            title = channel['name']
+            body += f'#EXTINF:-1  tvg-id="{id}" tvg-logo="https://image.p-c2-x.abema-tv.com/image/channels/{id}/logo.png", {title}\n'
+            body += f'http://127.0.0.1:51041/live.abema/ds-linear-abematv.akamaized.net/channel/{id}/playlist.m3u8\n\n'
+
+        return body
+    
+    def getEPG(self):
+        Abema = Ydl.get_info_extractor("AbemaTVTitle")
+        timetable = Abema._call_api(
+            'v1/timetable/dataSet', '', {'debug': 'false'})
+        body = "<?xml version='1.0' encoding='UTF-8'?>\n<tv>\n"
+        channels = timetable['channels']
+        slots = timetable['slots']
+        for channel in channels:
+            id = channel['id']
+            title = channel['name']
+            body += f'<channel id="{id}">\n<display-name>{title}</display-name>\n<icon src="https://image.p-c2-x.abema-tv.com/image/channels/{id}/logo.png" />\n</channel>\n'
+        for slot in slots:
+            channel = slot['channelId']
+            start = self.timestr(slot['startAt'])
+            end = self.timestr(slot['endAt'])
+            title = html.escape(slot['title'])
+            desc = html.escape(slot['content'])
+            icon = slot['displayProgramId']
+            body += f'<programme channel="{channel}" start="{start}" stop="{end}">\n<title>{title}</title>\n<desc>{desc}</desc>\n<icon src="https://image.p-c2-x.abema-tv.com/image/programs/{icon}/thumb001.png" />\n</programme>\n'
+        body += '</tv>'
+        return body
+
+    def timestr(self, utime):
+        dt = datetime.datetime.fromtimestamp(utime, datetime.timezone.utc)
+        return dt.strftime('%Y%m%d%H%M%S +0000')
+
 def sendJSON(method, json_params = {}):
 
     #This the generated JSON-RPC query code

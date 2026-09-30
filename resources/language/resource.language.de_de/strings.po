@@ -77,6 +77,14 @@ msgctxt "#30041"
 msgid "Save folder"
 msgstr ""
 
+msgctxt "#30042"
+msgid "Use InputStream Adaptive"
+msgstr ""
+
+msgctxt "#30043"
+msgid "Ignore EXT-X-DISCONTINUITY with Live stream."
+msgstr ""
+
 msgctxt "#30050"
 msgid "Cache"
 msgstr "Cache"
@@ -84,6 +92,10 @@ msgstr "Cache"
 msgctxt "#30051"
 msgid "Clear thumbnail cache"
 msgstr "Vorschaubilder Cache leeren"
+
+msgctxt "#30052"
+msgid "Clear cache"
+msgstr ""
 
 msgctxt "#30071"
 msgid "Remove"
