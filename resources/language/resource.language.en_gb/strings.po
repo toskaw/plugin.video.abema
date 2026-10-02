@@ -89,6 +89,10 @@ msgctxt "#30043"
 msgid "Ignore EXT-X-DISCONTINUITY with Live stream."
 msgstr ""
 
+msgctxt "#30044"
+msgid "CM cut"
+msgstr ""
+
 msgctxt "#30050"
 msgid "Cache"
 msgstr ""

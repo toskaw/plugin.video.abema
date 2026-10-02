@@ -13,12 +13,21 @@ import simplejson as json
 from resources.lib.skiptro import main
 import datetime
 import html
+import math
 
 PREFIX = '/video.abema'
 LIVE =   '/live.abema'
 PLAYLIST = '/playlist/'
 Ydl = YoutubeDL()
+
+def get_key_from_value(d, val):
+    keys = [k for k, v in d.items() if v == val]
+    if keys:
+        return keys[0]
+    return None
+
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+
     def get_license(self, ticket):
         Abema = Ydl.get_info_extractor("AbemaTVTitle")        
         lh = AbemaLicenseRH(ie=Abema, logger=None)
@@ -56,15 +65,21 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 xbmcaddon.Addon().setSetting(id='orig', value=orig)
                 xbmc.log('HTTP GET url= {}'.format(url),xbmc.LOGINFO)
                 ignore = xbmcaddon.Addon().getSettingBool(id='ignore_discont')
+                cm = xbmcaddon.Addon().getSettingBool(id='cm_cut')
                 res = requests.get(url)
                 body = re.sub(b'URI=.*?://', b'URI=\"/live.abema/key/', res.content)
                 if ignore:
                     body = re.sub(b'^#EXT-X-DISCONTINUITY.*$', b'', body, flags=re.MULTILINE)
+                if cm:
+                    data = self.cmcut(body.decode('utf-8'))
+                    body = bytes(data, encoding='utf-8')
+
                 self.send_response(res.status_code)
                 self.send_header('content-type', res.headers['content-type'])
                 self.end_headers()
                 self.wfile.write(body)
-            except Exception:
+            except Exception as e:
+                xbmc.log('HTTP GET Error = {}'.format(e),xbmc.LOGINFO)
                 self.send_response(500)
                 self.end_headers()
         elif path[0:len(PLAYLIST)] == PLAYLIST:
@@ -84,7 +99,8 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_header('content-type', res.headers['content-type'])
                 self.end_headers()
                 self.wfile.write(body)
-            except Exception:
+            except Exception as e:
+                xbmc.log('HTTP GET Error = {}'.format(e),xbmc.LOGINFO)
                 self.send_response(500)
                 self.end_headers()
 
@@ -119,7 +135,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 body = re.sub(b'URI=.*?://', b'URI=\"/live.abema/key/', res.content)
                 if ignore:
                     body = re.sub(b'^#EXT-X-DISCONTINUITY.*$', b'', body, flags=re.MULTILINE)
-
 
                 self.send_response(res.status_code)
                 self.send_header('content-type', res.headers['content-type'])
@@ -196,7 +211,70 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             body += f'<programme channel="{channel}" start="{start}" stop="{end}">\n<title>{title}</title>\n<desc>{desc}</desc>\n<icon src="https://image.p-c2-x.abema-tv.com/image/programs/{icon}/thumb001.png" />\n</programme>\n'
         body += '</tv>'
         return body
+    def cmcut(self, body):
+        buff = ""
+        CMTAG = '#EXT-X-KEY:METHOD=NONE'
+        SEQ = '#EXT-X-MEDIA-SEQUENCE:'
+        MASTER = '#EXT-X-STREAM-INF'
+        have_cm = CMTAG in body
+        lines = body.splitlines()
+        cm_area = False
+        
 
+        if MASTER in body:
+            self.server.adj_tslist.clear()
+
+        if not(SEQ in body):
+            return body
+        
+        cur = int(re.findall(r'#EXT-X-MEDIA-SEQUENCE:([0-9]*)', body)[0])
+        
+        for line in lines:
+            if CMTAG in line:
+                cm_area = True
+                self.server.cm_status = True
+                
+            if not cm_area:
+                buff += line + '\n'
+                if '/ts/' in line:
+                    # CMから本編復帰時に数回同じセグメントを繰り返すので補正
+                    if cur not in self.server.adj_tslist.keys():
+                        seq = get_key_from_value(self.server.adj_tslist, line)
+                        if not seq:
+                            #新規
+                            self.server.adj_tslist[cur] = line
+                            xbmc.log(f'adj_tslist[{cur}]={line}', xbmc.LOGINFO)
+                        else:
+                            #seq補正
+                            buff = re.sub(r'#EXT-X-MEDIA-SEQUENCE:([0-9]*)', f'#EXT-X-MEDIA-SEQUENCE:{seq}', buff)
+                            old = cur
+                            cur = seq
+                            xbmc.log(f'modify_seq:{old}->{seq}', xbmc.LOGINFO)
+                    else:
+                        if line != self.server.adj_tslist[cur]:
+                            seq = get_key_from_value(self.server.adj_tslist, line)
+                            if seq:
+                                #seq補正
+                                old = cur
+                                cur = seq
+                                buff = re.sub(r'#EXT-X-MEDIA-SEQUENCE:([0-9]*)', f'#EXT-X-MEDIA-SEQUENCE:{seq}', buff)
+                                xbmc.log(f'modify_seq:{old}->{seq}', xbmc.LOGINFO)
+                            else:
+                                #上書き
+                                self.server.adj_tslist[cur] = line
+                                xbmc.log(f'overwrite:{cur}={line}', xbmc.LOGINFO)
+                        else:
+                            xbmc.log(f'nochange seq={cur}', xbmc.LOGINFO)
+                    cur += 1
+            else:
+                if '#EXT-X-KEY:METHOD=AES' in line:
+                    cm_area = False
+                    buff += line + '\n'
+                    self.server.cm_status = False
+                    xbmc.log(f'cm end.seq={cur}', xbmc.LOGINFO)
+
+        return buff
+    
     def timestr(self, utime):
         dt = datetime.datetime.fromtimestamp(utime, datetime.timezone.utc)
         return dt.strftime('%Y%m%d%H%M%S +0000')
@@ -232,6 +310,8 @@ if __name__ == '__main__':
         server_inst.allow_reuse_address = True
         server_inst.server_bind()
         server_inst.server_activate()
+        server_inst.cm_status = False
+        server_inst.adj_tslist = {}
     except Exception:
         #xbmc.executebuiltin('Quit')
         raise
