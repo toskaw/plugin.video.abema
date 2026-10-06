@@ -236,7 +236,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 
             if not cm_area:
                 buff += line + '\n'
-                if '/ts/' in line:
+                if '.ts' in line:
                     # CMから本編復帰時に数回同じセグメントを繰り返すので補正
                     if cur not in self.server.adj_tslist.keys():
                         seq = get_key_from_value(self.server.adj_tslist, line)
