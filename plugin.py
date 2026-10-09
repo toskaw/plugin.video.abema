@@ -350,7 +350,7 @@ def save_series(series, title):
     title = re.sub(r'[\\/:*?"<>|]+','', title)
     path = xbmcaddon.Addon().getSetting('savefolder') + title
     
-    scr = f'yt-dlp -f b https://abema.tv/video/title/{series}'
+    scr = f'yt-dlp -f b --download-archive archive.txt https://abema.tv/video/title/{series}'
     try:
         if not xbmcvfs.exists(path):
             #create folder
