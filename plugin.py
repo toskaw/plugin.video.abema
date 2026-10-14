@@ -372,9 +372,9 @@ def save_season(series, season, group, title):
     series_id = season.split('_')[0]
     scr = ''
     if group != 'None':
-        scr = f'yt-dlp -f b https://abema.tv/video/title/{series_id}?s={season}'
+        scr = f'yt-dlp -f b --download-archive archive.txt https://abema.tv/video/title/{series_id}?s={season}'
     else:
-        scr = f'yt-dlp -f b https://abema.tv/video/title/{series_id}'
+        scr = f'yt-dlp -f b --download-archive archive.txt https://abema.tv/video/title/{series_id}'
 
     try:
         if not xbmcvfs.exists(path):
